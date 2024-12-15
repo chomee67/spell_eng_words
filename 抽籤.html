@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>單字拼字測驗</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        #word-meaning {
+            font-size: 48px; /* 字體大小加倍 */
+            margin-bottom: 20px;
+        }
+        #letters-container, #spelling-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .letter {
+            background-color: #007bff; /* 藍色 */
+            color: white;
+            padding: 20px 30px; /* 字體大小與按鈕大小加倍 */
+            font-size: 36px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .letter:hover {
+            background-color: #0056b3;
+        }
+        .spelling-letter {
+            background-color: #28a745; /* 綠色 */
+            color: white;
+            padding: 20px 30px; /* 字體大小與按鈕大小加倍 */
+            font-size: 36px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .spelling-letter:hover {
+            background-color: #218838;
+        }
+        #result {
+            font-size: 64px; /* 字體大小加倍 */
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="word-meaning">中文字意</div>
+    <div id="letters-container"></div>
+    <div id="spelling-container"></div>
+    <div id="result"></div>
+
+    <script>
+        const quizArray = [
+            { word: "iron", meaning: "鐵" },
+            { word: "cat", meaning: "貓" },
+            { word: "dog", meaning: "狗" },
+            { word: "tree", meaning: "樹" },
+            { word: "wood", meaning: "森林" }
+        ];
+
+        let currentQuizIndex = 0;
+        let spelling = [];
+
+        function loadQuiz() {
+            // Reset state
+            spelling = [];
+            document.getElementById("spelling-container").innerHTML = "";
+            document.getElementById("result").textContent = "";
+
+            // Load quiz data
+            const quiz = quizArray[currentQuizIndex];
+            document.getElementById("word-meaning").textContent = quiz.meaning;
+
+            // Shuffle letters
+            const letters = quiz.word.split("").sort(() => Math.random() - 0.5);
+
+            // Create letter buttons
+            const lettersContainer = document.getElementById("letters-container");
+            lettersContainer.innerHTML = "";
+            letters.forEach((letter, index) => {
+                const button = document.createElement("button");
+                button.textContent = letter;
+                button.className = "letter";
+                button.dataset.index = index;
+                button.addEventListener("click", () => {
+                    spelling.push({ letter, index });
+
+                    const spellingButton = document.createElement("button");
+                    spellingButton.textContent = letter;
+                    spellingButton.className = "spelling-letter";
+                    spellingButton.dataset.index = index;
+                    spellingButton.addEventListener("click", () => {
+                        spelling = spelling.filter(item => item.index !== index);
+                        spellingButton.remove();
+                        button.disabled = false;
+                        button.style.visibility = "visible";
+                    });
+                    document.getElementById("spelling-container").appendChild(spellingButton);
+
+                    button.disabled = true;
+                    button.style.visibility = "hidden";
+
+                    if (spelling.length === quiz.word.length) {
+                        checkAnswer();
+                    }
+                });
+                lettersContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer() {
+            const quiz = quizArray[currentQuizIndex];
+            const resultContainer = document.getElementById("result");
+            const spelledWord = spelling.map(item => item.letter).join("");
+
+            if (spelledWord === quiz.word) {
+                resultContainer.textContent = "O";
+                resultContainer.style.color = "green";
+            } else {
+                resultContainer.textContent = "X";
+                resultContainer.style.color = "red";
+            }
+
+            // Move to next quiz after 2 seconds
+            setTimeout(() => {
+                currentQuizIndex = (currentQuizIndex + 1) % quizArray.length;
+                loadQuiz();
+            }, 2000);
+        }
+
+        // Load the first quiz
+        loadQuiz();
+    </script>
+</body>
+</html>
