@@ -70,7 +70,6 @@
             { word: "wood", meaning: "森林" }
         ];
 
-        let currentQuizIndex = 0;
         let spelling = [];
 
         function loadQuiz() {
@@ -79,8 +78,8 @@
             document.getElementById("spelling-container").innerHTML = "";
             document.getElementById("result").textContent = "";
 
-            // Load quiz data
-            const quiz = quizArray[currentQuizIndex];
+            // Select a random quiz
+            const quiz = quizArray[Math.floor(Math.random() * quizArray.length)];
             document.getElementById("word-meaning").textContent = quiz.meaning;
 
             // Shuffle letters
@@ -113,19 +112,18 @@
                     button.style.visibility = "hidden";
 
                     if (spelling.length === quiz.word.length) {
-                        checkAnswer();
+                        checkAnswer(quiz.word);
                     }
                 });
                 lettersContainer.appendChild(button);
             });
         }
 
-        function checkAnswer() {
-            const quiz = quizArray[currentQuizIndex];
+        function checkAnswer(correctWord) {
             const resultContainer = document.getElementById("result");
             const spelledWord = spelling.map(item => item.letter).join("");
 
-            if (spelledWord === quiz.word) {
+            if (spelledWord === correctWord) {
                 resultContainer.textContent = "O";
                 resultContainer.style.color = "green";
             } else {
@@ -134,10 +132,7 @@
             }
 
             // Move to next quiz after 2 seconds
-            setTimeout(() => {
-                currentQuizIndex = (currentQuizIndex + 1) % quizArray.length;
-                loadQuiz();
-            }, 2000);
+            setTimeout(loadQuiz, 2000);
         }
 
         // Load the first quiz
